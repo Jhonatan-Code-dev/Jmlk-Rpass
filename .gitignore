@@ -1,2 +1,12 @@
-# Ignorar únicamente el archivo main.go dentro de cmd/
-cmd/main.go
+# Ignorar carpeta completa cmd
+cmd/
+
+# Ignorar binarios generados por Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Ignorar carpeta de compilación
+tmp/
