@@ -1,0 +1,2 @@
+# Ignorar únicamente el archivo main.go dentro de cmd/
+cmd/main.go
