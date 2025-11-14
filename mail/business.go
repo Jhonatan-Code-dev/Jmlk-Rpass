@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
@@ -106,8 +104,7 @@ func (e *EmailService) SendResetPassword(to string) error {
 // 🧱 RENDER HTML TEMPLATE
 // =====================================================
 func (e *EmailService) renderTemplate(code string) (string, error) {
-	baseDir, _ := os.Getwd()
-	tmplPath := filepath.Join(baseDir, "internal", "view", "reset_password.html")
+	tmplPath := "reset_password.html"
 
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
@@ -124,9 +121,11 @@ func (e *EmailService) renderTemplate(code string) (string, error) {
 	}
 
 	var html strings.Builder
+
 	if err := tmpl.Execute(&html, data); err != nil {
 		return "", fmt.Errorf("error ejecutando plantilla: %w", err)
 	}
+
 	return html.String(), nil
 }
 
