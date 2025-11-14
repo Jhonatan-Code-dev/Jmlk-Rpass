@@ -104,11 +104,9 @@ func (e *EmailService) SendResetPassword(to string) error {
 // 🧱 RENDER HTML TEMPLATE
 // =====================================================
 func (e *EmailService) renderTemplate(code string) (string, error) {
-	tmplPath := "./reset_password.html"
-
-	tmpl, err := template.ParseFiles(tmplPath)
+	tmpl, err := template.ParseFS(Templates, "templates/reset_password.html")
 	if err != nil {
-		return "", fmt.Errorf("error cargando plantilla: %w", err)
+		return "", fmt.Errorf("error cargando plantilla embed: %w", err)
 	}
 
 	data := ResetEmailData{
