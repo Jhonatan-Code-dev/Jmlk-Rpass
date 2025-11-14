@@ -41,7 +41,7 @@ func Init(cfg EmailConfig) error {
 	applyDefaults(&cfg)
 
 	baseDir, _ := os.Getwd()
-	dbPath := filepath.Join(baseDir, "pkg", "resetpassj", "storage", "resetpassj.db")
+	dbPath := filepath.Join(baseDir, "storage", "resetpassj.db")
 
 	db, err := InitDB(dbPath)
 	if err != nil {
