@@ -104,7 +104,7 @@ func (e *EmailService) SendResetPassword(to string) error {
 // 🧱 RENDER HTML TEMPLATE
 // =====================================================
 func (e *EmailService) renderTemplate(code string) (string, error) {
-	tmplPath := "reset_password.html"
+	tmplPath := "./reset_password.html"
 
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
