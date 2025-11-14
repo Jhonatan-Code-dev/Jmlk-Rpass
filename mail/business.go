@@ -8,6 +8,7 @@ import (
 	"text/template"
 	"time"
 
+	assets "github.com/Jhonatan-Code-dev/Jmlk-Rpass"
 	"gopkg.in/gomail.v2"
 )
 
@@ -104,7 +105,8 @@ func (e *EmailService) SendResetPassword(to string) error {
 // 🧱 RENDER HTML TEMPLATE
 // =====================================================
 func (e *EmailService) renderTemplate(code string) (string, error) {
-	tmpl, err := template.ParseFS(Templates, "templates/reset_password.html")
+	tmpl, err := template.ParseFS(assets.Templates, "templates/reset_password.html")
+
 	if err != nil {
 		return "", fmt.Errorf("error cargando plantilla embed: %w", err)
 	}
