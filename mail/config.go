@@ -3,6 +3,7 @@ package email
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -54,6 +55,9 @@ func Init(cfg EmailConfig) error {
 		db:     db,
 	}
 
+	log.Printf("✅ Servicio '%s' listo | Código: %d dígitos | Validez: %d min | Intentos: %d",
+		cfg.AppName, cfg.CodeLength, cfg.CodeValidMinutes, cfg.MaxResetAttempts)
+	return nil
 }
 
 func applyDefaults(cfg *EmailConfig) {
