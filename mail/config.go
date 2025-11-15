@@ -92,5 +92,7 @@ func applyDefaults(cfg *EmailConfig) {
 	if cfg.MaxResetAttempts == 0 {
 		cfg.MaxResetAttempts = def.MaxResetAttempts
 	}
-
+	if cfg.RestrictionPeriod == 0 {
+		cfg.RestrictionPeriod = def.RestrictionPeriod
+	}
 }
