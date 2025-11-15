@@ -83,5 +83,16 @@ func applyDefaults(cfg *EmailConfig) {
 	if cfg.Title == "" {
 		cfg.Title = def.Title
 	}
-
+	if cfg.CodeLength == 0 {
+		cfg.CodeLength = def.CodeLength
+	}
+	if cfg.CodeValidMinutes == 0 {
+		cfg.CodeValidMinutes = def.CodeValidMinutes
+	}
+	if cfg.MaxResetAttempts == 0 {
+		cfg.MaxResetAttempts = def.MaxResetAttempts
+	}
+	if cfg.RestrictionPeriod == 0 {
+		cfg.RestrictionPeriod = def.RestrictionPeriod
+	}
 }
