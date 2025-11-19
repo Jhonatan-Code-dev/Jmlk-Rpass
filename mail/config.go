@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/helpers"
 	"go.etcd.io/bbolt"
 	"gopkg.in/gomail.v2"
 )
@@ -46,31 +47,14 @@ func NewDefaultConfig() EmailConfig {
 func applyDefaults(cfg *EmailConfig) {
 	def := NewDefaultConfig()
 
-	if cfg.Host == "" {
-		cfg.Host = def.Host
-	}
-	if cfg.Port == 0 {
-		cfg.Port = def.Port
-	}
-	if cfg.AppName == "" {
-		cfg.AppName = def.AppName
-	}
-	if cfg.Title == "" {
-		cfg.Title = def.Title
-	}
-	if cfg.CodeLength == 0 {
-		cfg.CodeLength = def.CodeLength
-	}
-	if cfg.CodeValidMinutes == 0 {
-		cfg.CodeValidMinutes = def.CodeValidMinutes
-	}
-	if cfg.MaxResetAttempts == 0 {
-		cfg.MaxResetAttempts = def.MaxResetAttempts
-	}
-	if cfg.RestrictionPeriod == 0 {
-		cfg.RestrictionPeriod = def.RestrictionPeriod
-	}
-	// AllowOverride puede ser false intencionalmente, no lo sobreescribimos si usuario lo puso.
+	cfg.Host = helpers.OrString(cfg.Host, def.Host)
+	cfg.Port = helpers.OrInt(cfg.Port, def.Port)
+	cfg.AppName = helpers.OrString(cfg.AppName, def.AppName)
+	cfg.Title = helpers.OrString(cfg.Title, def.Title)
+	cfg.CodeLength = helpers.OrInt(cfg.CodeLength, def.CodeLength)
+	cfg.CodeValidMinutes = helpers.OrInt(cfg.CodeValidMinutes, def.CodeValidMinutes)
+	cfg.MaxResetAttempts = helpers.OrInt(cfg.MaxResetAttempts, def.MaxResetAttempts)
+	cfg.RestrictionPeriod = helpers.OrDuration(cfg.RestrictionPeriod, def.RestrictionPeriod)
 }
 
 // InitBoltDBPath crea directorio y abre la db bolt
@@ -90,8 +74,6 @@ func NewGomailDialer(cfg EmailConfig) *gomail.Dialer {
 	return gomail.NewDialer(cfg.Host, cfg.Port, cfg.Username, cfg.Password)
 }
 
-// Helper de inicialización "rápida" que crea el repositorio Bolt y el sender SMTP real.
-// Úsalo desde main si quieres la configuración por defecto basada en filesystem.
 func NewServiceWithBoltAndSMTP(cfg EmailConfig, dbPath string) (*EmailService, error) {
 	if cfg.Username == "" || cfg.Password == "" {
 		return nil, errors.New("'Username' y 'Password' son obligatorios")
