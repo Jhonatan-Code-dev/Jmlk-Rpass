@@ -1,3 +1,4 @@
+// Package helpers provee funciones auxiliares para asignar valores por defecto.
 package helpers
 
 import "time"
