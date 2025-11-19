@@ -1,4 +1,5 @@
-package service
+// Package mail gestiona la inicialización del servicio de email y envío de correos.
+package mail
 
 import (
 	"context"
@@ -8,16 +9,17 @@ import (
 
 	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/config"
 	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/db/repository"
-	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/mail"
 )
 
-// Instancia global
-var Service *mail.EmailService
+// Instancia global opcional del servicio
+var Service *EmailService
 
-func Init(cfg config.EmailConfig) (*mail.EmailService, error) {
+// Init inicializa todo el servicio de email: config, DB, repositorio y SMTP.
+func Init(cfg config.EmailConfig) (*EmailService, error) {
 	if cfg.Username == "" || cfg.Password == "" {
 		return nil, fmt.Errorf("'Username' y 'Password' son obligatorios")
 	}
+
 	config.ApplyDefaults(&cfg)
 
 	baseDir, _ := os.Getwd()
@@ -33,16 +35,18 @@ func Init(cfg config.EmailConfig) (*mail.EmailService, error) {
 	}
 
 	repo := &repository.BoltRepository{Db: db}
-	smtpClient := &mail.SMTPSender{
-		Dialer:      mail.NewGomailDialer(cfg),
+
+	smtpClient := &SMTPSender{
+		Dialer:      NewGomailDialer(cfg),
 		SenderEmail: cfg.Username,
 	}
 
-	svc := mail.NewEmailService(cfg, repo, smtpClient)
+	svc := NewEmailService(cfg, repo, smtpClient)
 	Service = svc
 	return svc, nil
 }
 
+// SendReset permite enviar un correo de restablecimiento usando la instancia global.
 func SendReset(to string) error {
 	if Service == nil {
 		return fmt.Errorf("email service no inicializado — llama a Init() primero")
