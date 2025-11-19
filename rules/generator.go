@@ -1,5 +1,4 @@
-// Package mail genera códigos numéricos ultra rápidos y sin overhead.
-package email
+package rules
 
 import (
 	"math/rand"
@@ -9,23 +8,23 @@ import (
 
 const digits = "0123456789"
 
-type EmailService struct {
+type CodeGenerator struct {
 	codeLength int
 	prngPool   sync.Pool
 }
 
-func NewEmailService(codeLength int) *EmailService {
-	s := &EmailService{codeLength: codeLength}
-	s.prngPool.New = func() interface{} { return rand.New(rand.NewSource(time.Now().UnixNano())) }
-	return s
+func NewCodeGenerator(length int) *CodeGenerator {
+	g := &CodeGenerator{codeLength: length}
+	g.prngPool.New = func() interface{} { return rand.New(rand.NewSource(time.Now().UnixNano())) }
+	return g
 }
 
-func (s *EmailService) GenerateCode() string {
-	r := s.prngPool.Get().(*rand.Rand)
+func (g *CodeGenerator) Generate() string {
+	r := g.prngPool.Get().(*rand.Rand)
 	var buf [64]byte
-	for i := 0; i < s.codeLength; i++ {
+	for i := 0; i < g.codeLength; i++ {
 		buf[i] = digits[r.Intn(10)]
 	}
-	s.prngPool.Put(r)
-	return string(buf[:s.codeLength])
+	g.prngPool.Put(r)
+	return string(buf[:g.codeLength])
 }

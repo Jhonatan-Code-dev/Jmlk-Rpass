@@ -1,30 +1,28 @@
-package email
+package repository
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
 
+	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/db/models"
 	"go.etcd.io/bbolt"
 )
 
 var bucketName = []byte("reset_codes")
 
-// BoltRepository implementa Repository con BoltDB.
 type BoltRepository struct {
 	db *bbolt.DB
 }
 
-// initBucketIfMissing crea el bucket si no existe.
-func initBucketIfMissing(db *bbolt.DB) error {
+func InitBucketIfMissing(db *bbolt.DB) error {
 	return db.Update(func(tx *bbolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists(bucketName)
 		return err
 	})
 }
 
-func (r *BoltRepository) SaveCode(ctx context.Context, entry CodeEntry) error {
-	// usamos Update (transacción)
+func (r *BoltRepository) SaveCode(ctx context.Context, entry models.CodeEntry) error {
 	return r.db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		data, err := json.Marshal(entry)
@@ -37,8 +35,8 @@ func (r *BoltRepository) SaveCode(ctx context.Context, entry CodeEntry) error {
 
 var ErrNotFound = errors.New("registro no encontrado")
 
-func (r *BoltRepository) GetCodeEntry(ctx context.Context, email string) (*CodeEntry, error) {
-	var entry CodeEntry
+func (r *BoltRepository) GetCodeEntry(ctx context.Context, email string) (*models.CodeEntry, error) {
+	var entry models.CodeEntry
 	err := r.db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {

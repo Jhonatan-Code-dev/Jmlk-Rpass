@@ -1,5 +1,4 @@
-// Package email implementa utilidades para el envío de correos electrónicos.
-package email
+package mail
 
 import (
 	"context"
@@ -18,6 +17,5 @@ func (s *SMTPSender) Send(ctx context.Context, from, to, subject, htmlBody strin
 	msg.SetHeader("To", to)
 	msg.SetHeader("Subject", subject)
 	msg.SetBody("text/html", htmlBody)
-
 	return s.dialer.DialAndSend(msg)
 }

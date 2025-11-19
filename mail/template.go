@@ -1,4 +1,4 @@
-package email
+package mail
 
 import (
 	"context"
@@ -9,7 +9,15 @@ import (
 	assets "github.com/Jhonatan-Code-dev/Jmlk-Rpass"
 )
 
-// RenderTemplate retorna el HTML listo para enviar.
+type ResetEmailData struct {
+	AppName     string
+	Title       string
+	Code        string
+	Minutes     int
+	MaxAttempts int
+	Restriction string
+}
+
 func (s *EmailService) RenderTemplate(ctx context.Context, code string) (string, error) {
 	tmpl, err := template.ParseFS(assets.Templates, "templates/reset_password.html")
 	if err != nil {

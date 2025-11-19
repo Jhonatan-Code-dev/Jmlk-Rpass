@@ -1,15 +1,17 @@
-package email
+package mail
 
-import "context"
+import (
+	"context"
 
-// SMTPClient abstrae el envío de correos (permite mock en tests).
+	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/db/models"
+)
+
 type SMTPClient interface {
-	Send(ctx context.Context, from string, to string, subject string, htmlBody string) error
+	Send(ctx context.Context, from, to, subject, htmlBody string) error
 }
 
-// Repository abstrae la persistencia de códigos (permite cambiar BoltDB por otra DB).
 type Repository interface {
-	SaveCode(ctx context.Context, entry CodeEntry) error
-	GetCodeEntry(ctx context.Context, email string) (*CodeEntry, error)
+	SaveCode(ctx context.Context, entry models.CodeEntry) error
+	GetCodeEntry(ctx context.Context, email string) (*models.CodeEntry, error)
 	Close() error
 }
