@@ -12,6 +12,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+// EmailConfig agrupa todas las opciones del servicio.
 type EmailConfig struct {
 	Host              string
 	Port              int
@@ -23,46 +24,12 @@ type EmailConfig struct {
 	CodeValidMinutes  int
 	MaxResetAttempts  int
 	RestrictionPeriod time.Duration
-	AllowOverride     bool // 👈 NUEVO
+	AllowOverride     bool
 }
 
-type EmailService struct {
-	dialer *gomail.Dialer
-	sender string
-	conf   EmailConfig
-	db     *bbolt.DB
-}
-
-var Service *EmailService
-
-func Init(cfg EmailConfig) error {
-	if cfg.Username == "" || cfg.Password == "" {
-		return errors.New("❌ 'Username' y 'Password' son obligatorios")
-	}
-	applyDefaults(&cfg)
-
-	baseDir, _ := os.Getwd()
-	dbPath := filepath.Join(baseDir, "storage", "resetpassj.db")
-
-	db, err := InitDB(dbPath)
-	if err != nil {
-		return fmt.Errorf("error iniciando base de datos: %w", err)
-	}
-
-	Service = &EmailService{
-		dialer: gomail.NewDialer(cfg.Host, cfg.Port, cfg.Username, cfg.Password),
-		sender: cfg.Username,
-		conf:   cfg,
-		db:     db,
-	}
-
-	log.Printf("✅ Servicio '%s' listo | Código: %d dígitos | Validez: %d min | Intentos: %d",
-		cfg.AppName, cfg.CodeLength, cfg.CodeValidMinutes, cfg.MaxResetAttempts)
-	return nil
-}
-
-func applyDefaults(cfg *EmailConfig) {
-	def := EmailConfig{
+// NewDefaultConfig devuelve un EmailConfig con valores por defecto.
+func NewDefaultConfig() EmailConfig {
+	return EmailConfig{
 		Host:              "smtp.gmail.com",
 		Port:              587,
 		AppName:           "MiApp",
@@ -73,9 +40,12 @@ func applyDefaults(cfg *EmailConfig) {
 		RestrictionPeriod: 24 * time.Hour,
 		AllowOverride:     true,
 	}
-	if cfg.AllowOverride == false {
-		cfg.AllowOverride = def.AllowOverride
-	}
+}
+
+// applyDefaults completa cfg con valores por defecto si están vacíos.
+func applyDefaults(cfg *EmailConfig) {
+	def := NewDefaultConfig()
+
 	if cfg.Host == "" {
 		cfg.Host = def.Host
 	}
@@ -100,4 +70,52 @@ func applyDefaults(cfg *EmailConfig) {
 	if cfg.RestrictionPeriod == 0 {
 		cfg.RestrictionPeriod = def.RestrictionPeriod
 	}
+	// AllowOverride puede ser false intencionalmente, no lo sobreescribimos si usuario lo puso.
+}
+
+// InitBoltDBPath crea directorio y abre la db bolt
+func InitBoltDBPath(dbPath string) (*bbolt.DB, error) {
+	if err := os.MkdirAll(filepath.Dir(dbPath), os.ModePerm); err != nil {
+		return nil, fmt.Errorf("mkdir storage: %w", err)
+	}
+	db, err := bbolt.Open(dbPath, 0666, nil)
+	if err != nil {
+		return nil, fmt.Errorf("open bolt db: %w", err)
+	}
+	return db, nil
+}
+
+// NewGomailDialer crea un dialer gomail desde config (helper).
+func NewGomailDialer(cfg EmailConfig) *gomail.Dialer {
+	return gomail.NewDialer(cfg.Host, cfg.Port, cfg.Username, cfg.Password)
+}
+
+// Helper de inicialización "rápida" que crea el repositorio Bolt y el sender SMTP real.
+// Úsalo desde main si quieres la configuración por defecto basada en filesystem.
+func NewServiceWithBoltAndSMTP(cfg EmailConfig, dbPath string) (*EmailService, error) {
+	if cfg.Username == "" || cfg.Password == "" {
+		return nil, errors.New("'Username' y 'Password' son obligatorios")
+	}
+	applyDefaults(&cfg)
+
+	db, err := InitBoltDBPath(dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Inicializar bucket si falta
+	if err := initBucketIfMissing(db); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	repo := &BoltRepository{db: db}
+	dialer := NewGomailDialer(cfg)
+	sender := &SMTPSender{dialer: dialer, senderEmail: cfg.Username}
+
+	svc := NewEmailService(cfg, repo, sender)
+	log.Printf("✅ Servicio '%s' listo | Código: %d dígitos | Validez: %d min | Intentos: %d",
+		cfg.AppName, cfg.CodeLength, cfg.CodeValidMinutes, cfg.MaxResetAttempts)
+
+	return svc, nil
 }
