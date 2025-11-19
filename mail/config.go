@@ -23,6 +23,7 @@ type EmailConfig struct {
 	CodeValidMinutes  int
 	MaxResetAttempts  int
 	RestrictionPeriod time.Duration
+	AllowOverride     bool // 👈 NUEVO
 }
 
 type EmailService struct {
@@ -70,6 +71,10 @@ func applyDefaults(cfg *EmailConfig) {
 		CodeValidMinutes:  15,
 		MaxResetAttempts:  3,
 		RestrictionPeriod: 24 * time.Hour,
+		AllowOverride:     true,
+	}
+	if cfg.AllowOverride == false {
+		cfg.AllowOverride = def.AllowOverride
 	}
 	if cfg.Host == "" {
 		cfg.Host = def.Host

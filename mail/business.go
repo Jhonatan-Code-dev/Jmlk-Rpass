@@ -33,22 +33,42 @@ func (e *EmailService) CanSendReset(email string) (bool, string) {
 	entry, _ := GetCodeEntry(e.db, email)
 	now := time.Now()
 
+	// No existe registro → enviar
 	if entry == nil {
-		return true, "✅ Primer envío permitido."
+		return true, "Primer envío permitido."
 	}
-	if entry.Used {
-		return false, fmt.Sprintf("⚠️ Ya usaste tu último código. Espera %.0f horas.",
-			e.conf.RestrictionPeriod.Hours())
-	}
-	if now.Before(entry.ExpireAt) {
-		return false, fmt.Sprintf("⚠️ Aún tienes un código activo hasta %s.",
-			entry.ExpireAt.Format("15:04:05"))
-	}
+
+	// 1. Regla que NUNCA se salta: máximo de intentos
 	if entry.Attempts >= e.conf.MaxResetAttempts {
-		return false, fmt.Sprintf("🚫 Máximo de intentos (%d). Espera %.0f horas.",
-			e.conf.MaxResetAttempts, e.conf.RestrictionPeriod.Hours())
+		return false, fmt.Sprintf(
+			"Máximo de intentos (%d). Espera %.0f horas.",
+			e.conf.MaxResetAttempts,
+			e.conf.RestrictionPeriod.Hours(),
+		)
 	}
-	return true, "✅ Cumple políticas, se enviará nuevo código."
+
+	// 2. Si AllowOverride está activo → ignorar expiración y Used
+	//    pero NO ignorar el límite de intentos (ya validado arriba)
+	if e.conf.AllowOverride {
+		return true, "Override activo → se generará nuevo código."
+	}
+
+	// 3. Reglas normales (estrictas)
+	if entry.Used {
+		return false, fmt.Sprintf(
+			"Ya usaste tu último código. Espera %.0f horas.",
+			e.conf.RestrictionPeriod.Hours(),
+		)
+	}
+
+	if now.Before(entry.ExpireAt) {
+		return false, fmt.Sprintf(
+			"Aún tienes un código activo hasta %s.",
+			entry.ExpireAt.Format("15:04:05"),
+		)
+	}
+
+	return true, "Cumple políticas, se enviará nuevo código."
 }
 
 // =====================================================
