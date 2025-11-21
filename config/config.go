@@ -18,6 +18,10 @@ type EmailConfig struct {
 	MaxResetAttempts  int
 	RestrictionPeriod time.Duration
 	AllowOverride     bool
+
+	// NUEVO: carpeta y nombre de la base de datos
+	DatabaseFolder string
+	DatabaseName   string
 }
 
 func NewDefaultConfig() EmailConfig {
@@ -31,11 +35,16 @@ func NewDefaultConfig() EmailConfig {
 		MaxResetAttempts:  3,
 		RestrictionPeriod: 24 * time.Hour,
 		AllowOverride:     true,
+
+		// Valores por defecto
+		DatabaseFolder: "yona",
+		DatabaseName:   "resetpass.db",
 	}
 }
 
 func ApplyDefaults(cfg *EmailConfig) {
 	def := NewDefaultConfig()
+
 	cfg.Host = helpers.OrString(cfg.Host, def.Host)
 	cfg.Port = helpers.OrInt(cfg.Port, def.Port)
 	cfg.AppName = helpers.OrString(cfg.AppName, def.AppName)
@@ -44,4 +53,8 @@ func ApplyDefaults(cfg *EmailConfig) {
 	cfg.CodeValidMinutes = helpers.OrInt(cfg.CodeValidMinutes, def.CodeValidMinutes)
 	cfg.MaxResetAttempts = helpers.OrInt(cfg.MaxResetAttempts, def.MaxResetAttempts)
 	cfg.RestrictionPeriod = helpers.OrDuration(cfg.RestrictionPeriod, def.RestrictionPeriod)
+
+	// Aplicar defaults nuevos
+	cfg.DatabaseFolder = helpers.OrString(cfg.DatabaseFolder, def.DatabaseFolder)
+	cfg.DatabaseName = helpers.OrString(cfg.DatabaseName, def.DatabaseName)
 }

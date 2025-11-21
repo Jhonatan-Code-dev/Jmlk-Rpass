@@ -1,4 +1,3 @@
-// Package mail gestiona la inicialización del servicio de email y envío de correos.
 package mail
 
 import (
@@ -11,10 +10,8 @@ import (
 	"github.com/Jhonatan-Code-dev/Jmlk-Rpass/db/repository"
 )
 
-// Instancia global opcional del servicio
 var Service *EmailService
 
-// Init inicializa todo el servicio de email: config, DB, repositorio y SMTP.
 func Init(cfg config.EmailConfig) (*EmailService, error) {
 	if cfg.Username == "" || cfg.Password == "" {
 		return nil, fmt.Errorf("'Username' y 'Password' son obligatorios")
@@ -22,8 +19,9 @@ func Init(cfg config.EmailConfig) (*EmailService, error) {
 
 	config.ApplyDefaults(&cfg)
 
+	// Construir ruta dinámica de la DB
 	baseDir, _ := os.Getwd()
-	dbPath := filepath.Join(baseDir, "storage", "resetpassj.db")
+	dbPath := filepath.Join(baseDir, cfg.DatabaseFolder, cfg.DatabaseName)
 
 	db, err := repository.InitBoltDBPath(dbPath)
 	if err != nil {
@@ -43,10 +41,10 @@ func Init(cfg config.EmailConfig) (*EmailService, error) {
 
 	svc := NewEmailService(cfg, repo, smtpClient)
 	Service = svc
+
 	return svc, nil
 }
 
-// SendReset permite enviar un correo de restablecimiento usando la instancia global.
 func SendReset(to string) error {
 	if Service == nil {
 		return fmt.Errorf("email service no inicializado — llama a Init() primero")
