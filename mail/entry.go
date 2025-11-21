@@ -13,10 +13,6 @@ import (
 var Service *EmailService
 
 func Init(cfg config.EmailConfig) (*EmailService, error) {
-	if cfg.Username == "" || cfg.Password == "" {
-		return nil, fmt.Errorf("'Username' y 'Password' son obligatorios")
-	}
-
 	config.ApplyDefaults(&cfg)
 
 	// Construir ruta dinámica de la DB
@@ -32,7 +28,7 @@ func Init(cfg config.EmailConfig) (*EmailService, error) {
 		return nil, fmt.Errorf("error iniciando bucket Bolt: %w", err)
 	}
 
-	repo := &repository.BoltRepository{Db: db}
+	repo := &repository.BoltRepository{DB: db}
 
 	smtpClient := &SMTPSender{
 		Dialer:      NewGomailDialer(cfg),

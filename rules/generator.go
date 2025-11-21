@@ -15,7 +15,7 @@ type CodeGenerator struct {
 
 func NewCodeGenerator(length int) *CodeGenerator {
 	g := &CodeGenerator{codeLength: length}
-	g.prngPool.New = func() interface{} { return rand.New(rand.NewSource(time.Now().UnixNano())) }
+	g.prngPool.New = func() any { return rand.New(rand.NewSource(time.Now().UnixNano())) }
 	return g
 }
 

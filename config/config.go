@@ -43,6 +43,10 @@ func NewDefaultConfig() EmailConfig {
 }
 
 func ApplyDefaults(cfg *EmailConfig) {
+	// Validación obligatoria usando el mismo estilo declarativo
+	cfg.Username = helpers.RequiredString(cfg.Username, "Username")
+	cfg.Password = helpers.RequiredString(cfg.Password, "Password")
+
 	def := NewDefaultConfig()
 
 	cfg.Host = helpers.OrString(cfg.Host, def.Host)
@@ -54,7 +58,6 @@ func ApplyDefaults(cfg *EmailConfig) {
 	cfg.MaxResetAttempts = helpers.OrInt(cfg.MaxResetAttempts, def.MaxResetAttempts)
 	cfg.RestrictionPeriod = helpers.OrDuration(cfg.RestrictionPeriod, def.RestrictionPeriod)
 
-	// Aplicar defaults nuevos
 	cfg.DatabaseFolder = helpers.OrString(cfg.DatabaseFolder, def.DatabaseFolder)
 	cfg.DatabaseName = helpers.OrString(cfg.DatabaseName, def.DatabaseName)
 }

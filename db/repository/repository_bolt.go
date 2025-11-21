@@ -15,7 +15,7 @@ import (
 var bucketName = []byte("reset_codes")
 
 type BoltRepository struct {
-	Db *bbolt.DB
+	DB *bbolt.DB
 }
 
 func InitBoltDBPath(dbPath string) (*bbolt.DB, error) {
@@ -39,7 +39,7 @@ func InitBucketIfMissing(db *bbolt.DB) error {
 }
 
 func (r *BoltRepository) SaveCode(ctx context.Context, entry models.CodeEntry) error {
-	return r.Db.Update(func(tx *bbolt.Tx) error {
+	return r.DB.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		data, err := json.Marshal(entry)
 		if err != nil {
@@ -54,7 +54,7 @@ var ErrNotFound = errors.New("registro no encontrado")
 func (r *BoltRepository) GetCodeEntry(ctx context.Context, email string) (*models.CodeEntry, error) {
 	var entry models.CodeEntry
 
-	err := r.Db.View(func(tx *bbolt.Tx) error {
+	err := r.DB.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket(bucketName)
 		if b == nil {
 			return ErrNotFound
@@ -76,5 +76,5 @@ func (r *BoltRepository) GetCodeEntry(ctx context.Context, email string) (*model
 }
 
 func (r *BoltRepository) Close() error {
-	return r.Db.Close()
+	return r.DB.Close()
 }
