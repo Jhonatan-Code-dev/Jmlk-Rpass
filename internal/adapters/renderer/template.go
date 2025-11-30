@@ -1,3 +1,4 @@
+// internal/adapters/renderer/template.go
 package renderer
 
 import (

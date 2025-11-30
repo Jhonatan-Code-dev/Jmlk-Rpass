@@ -1,3 +1,4 @@
+// internal/ports/renderer.go
 package ports
 
 type Renderer interface {

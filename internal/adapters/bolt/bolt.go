@@ -1,3 +1,4 @@
+// internal/adapters/bolt/bolt.go
 package bolt
 
 import (

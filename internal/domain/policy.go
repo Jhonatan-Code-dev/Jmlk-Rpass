@@ -1,3 +1,4 @@
+// internal/domain/policy.go
 package domain
 
 import (

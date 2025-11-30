@@ -1,3 +1,4 @@
+// internal/adapters/smtp/gomail.go
 package smtpadapter
 
 import (

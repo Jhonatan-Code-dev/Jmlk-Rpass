@@ -1,3 +1,4 @@
+// internal/ports/smtp.go
 package ports
 
 import "context"

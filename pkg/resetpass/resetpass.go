@@ -1,3 +1,4 @@
+// pkg/resetpass/resetpass.go
 package resetpass
 
 import (
@@ -20,26 +21,26 @@ type Service struct {
 
 func New(cfg Config) (*Service, error) {
 	intCfg := app.Config{
-		Host:             cfg.Host,
-		Port:             cfg.Port,
-		Username:         cfg.Username,
-		Password:         cfg.Password,
-		AppName:          cfg.AppName,
-		Title:            cfg.Title,
-		CodeLength:       cfg.CodeLength,
-		CodeValidMinutes: cfg.CodeValidMinutes,
-		MaxResetAttempts: cfg.MaxResetAttempts,
-		RestrictionHours: cfg.RestrictionHours,
-		AllowOverride:    cfg.AllowOverride,
-		DatabaseFolder:   cfg.DatabaseFolder,
-		DatabaseName:     cfg.DatabaseName,
-		EmailTimeout:     cfg.EmailTimeout,
+		Host:              cfg.Host,
+		Port:              cfg.Port,
+		Username:          cfg.Username,
+		Password:          cfg.Password,
+		AppName:           cfg.AppName,
+		Title:             cfg.Title,
+		CodeLength:        cfg.CodeLength,
+		CodeValidMinutes:  cfg.CodeValidMinutes,
+		MaxResetAttempts:  cfg.MaxResetAttempts,
+		RestrictionWindow: cfg.RestrictionWindow,
+		AllowOverride:     cfg.AllowOverride,
+		DatabaseFolder:    cfg.DatabaseFolder,
+		DatabaseName:      cfg.DatabaseName,
+		EmailTimeout:      cfg.EmailTimeout,
 	}
 	intCfg.CodeLength = helpers.OrInt(intCfg.CodeLength, 6)
 	intCfg.CodeValidMinutes = helpers.OrInt(intCfg.CodeValidMinutes, 15)
 	intCfg.MaxResetAttempts = helpers.OrInt(intCfg.MaxResetAttempts, 3)
-	if intCfg.RestrictionHours == 0 {
-		intCfg.RestrictionHours = 24
+	if intCfg.RestrictionWindow == 0 {
+		intCfg.RestrictionWindow = 24 * time.Hour
 	}
 	if intCfg.EmailTimeout == 0 {
 		intCfg.EmailTimeout = 30 * time.Second
@@ -60,20 +61,20 @@ func New(cfg Config) (*Service, error) {
 
 func NewWithAdapters(cfg Config, repo ports.Repository, smtpClient ports.SMTPClient, renderer ports.Renderer) (*Service, error) {
 	intCfg := app.Config{
-		Host:             cfg.Host,
-		Port:             cfg.Port,
-		Username:         cfg.Username,
-		Password:         cfg.Password,
-		AppName:          cfg.AppName,
-		Title:            cfg.Title,
-		CodeLength:       cfg.CodeLength,
-		CodeValidMinutes: cfg.CodeValidMinutes,
-		MaxResetAttempts: cfg.MaxResetAttempts,
-		RestrictionHours: cfg.RestrictionHours,
-		AllowOverride:    cfg.AllowOverride,
-		DatabaseFolder:   cfg.DatabaseFolder,
-		DatabaseName:     cfg.DatabaseName,
-		EmailTimeout:     cfg.EmailTimeout,
+		Host:              cfg.Host,
+		Port:              cfg.Port,
+		Username:          cfg.Username,
+		Password:          cfg.Password,
+		AppName:           cfg.AppName,
+		Title:             cfg.Title,
+		CodeLength:        cfg.CodeLength,
+		CodeValidMinutes:  cfg.CodeValidMinutes,
+		MaxResetAttempts:  cfg.MaxResetAttempts,
+		RestrictionWindow: cfg.RestrictionWindow,
+		AllowOverride:     cfg.AllowOverride,
+		DatabaseFolder:    cfg.DatabaseFolder,
+		DatabaseName:      cfg.DatabaseName,
+		EmailTimeout:      cfg.EmailTimeout,
 	}
 	internalSvc := app.NewService(intCfg, repo, smtpClient, renderer)
 	return &Service{s: internalSvc}, nil

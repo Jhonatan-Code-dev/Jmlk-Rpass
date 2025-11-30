@@ -1,3 +1,4 @@
+// internal/domain/generator.go
 package domain
 
 import (

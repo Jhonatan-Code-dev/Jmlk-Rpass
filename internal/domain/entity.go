@@ -1,3 +1,4 @@
+// internal/domain/entity.go
 package domain
 
 import "time"
