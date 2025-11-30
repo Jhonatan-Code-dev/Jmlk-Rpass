@@ -54,7 +54,7 @@ func New(cfg Config) (*Service, error) {
 	}
 	smtpClient := smtp.NewGomailSender(intCfg.Host, intCfg.Port, intCfg.Username, intCfg.Password)
 	renderer := render.NewTemplateRenderer()
-	internalSvc := app.NewService(intCfg, repo.(ports.Repository), smtpClient, renderer)
+	internalSvc := app.NewService(intCfg, repo, smtpClient, renderer)
 	return &Service{s: internalSvc}, nil
 }
 

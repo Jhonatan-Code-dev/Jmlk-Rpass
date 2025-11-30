@@ -8,5 +8,13 @@ cmd/
 *.so
 *.dylib
 
-# Ignorar carpeta de compilación
+# Ignorar caché y archivos de compilación de Go
+*.test
+*.out
+
+# Ignorar carpeta de compilación temporal
 tmp/
+
+# Ignorar binarios build/ si los usas
+bin/
+build/
