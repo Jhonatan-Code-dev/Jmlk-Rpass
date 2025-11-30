@@ -6,28 +6,41 @@ import (
 	"time"
 )
 
-func CanSendReset(entry *CodeEntry, maxAttempts int, restrictionHours int, allowOverride bool) (bool, string) {
+// Ahora recibe restrictionWindow time.Duration
+func CanSendReset(entry *CodeEntry, maxAttempts int, restrictionWindow time.Duration, allowOverride bool) (bool, string) {
 	now := time.Now()
-	restriction := time.Duration(restrictionHours) * time.Hour
 
 	if entry == nil {
 		return true, "Primer envío permitido."
 	}
 
+	// Si excedió intentos
 	if entry.Attempts >= maxAttempts {
-		return false, fmt.Sprintf("Máximo de intentos (%d). Espera %.0f horas.", maxAttempts, restriction.Hours())
+		return false, fmt.Sprintf(
+			"Máximo de intentos (%d). Espera %s.",
+			maxAttempts,
+			restrictionWindow.String(),
+		)
 	}
 
+	// Override: siempre permite
 	if allowOverride {
 		return true, "Override activo → se generará nuevo código."
 	}
 
+	// Ya usó el anterior
 	if entry.Used {
-		return false, fmt.Sprintf("Ya usaste tu último código. Espera %.0f horas.", restriction.Hours())
+		return false, fmt.Sprintf(
+			"Ya usaste tu último código. Espera %s.",
+			restrictionWindow.String(),
+		)
 	}
 
+	// Aún tiene un código activo
 	if now.Before(entry.ExpireAt) {
-		return false, fmt.Sprintf("Aún tienes un código activo hasta %s.", entry.ExpireAt.Format("15:04:05"))
+		return false, fmt.Sprintf("Aún tienes un código activo hasta %s.",
+			entry.ExpireAt.Format("15:04:05"),
+		)
 	}
 
 	return true, "Cumple políticas, se enviará nuevo código."
